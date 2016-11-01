@@ -1,7 +1,6 @@
 /**
  * Created by arvid on 2016-10-31.
  */
-import
 
 public class Main {
 
