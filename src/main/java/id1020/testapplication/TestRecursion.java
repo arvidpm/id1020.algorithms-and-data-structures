@@ -1,10 +1,12 @@
+package id1020.testapplication;
+
 /**
- * Created by arvid on 2016-10-31.
+ * Created by arvid on 2016-11-02.
  */
+public class TestRecursion {
 
-public class Main {
-
-    public static void main(String args[]){
+    public static void main(String args[])
+    {
 
         int fWithLoop = computeFactorialWithLoop(3);
         int fWithRecursion = findFactorialRecursion(3);
@@ -13,7 +15,6 @@ public class Main {
         System.out.println(fWithLoop);
         System.out.println(fWithRecursion);
         System.out.println(fibonacciCalculated);
-
 
     }
 

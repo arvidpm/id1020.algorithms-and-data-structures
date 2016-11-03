@@ -1,3 +1,5 @@
+package id1020.homework;
+
 /**
  * Created by arvid on 2016-11-01.
  */
