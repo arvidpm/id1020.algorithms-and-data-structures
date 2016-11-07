@@ -4,38 +4,21 @@ package id1020.laboration1;
  * Created by arvid on 2016-11-02.
  */
 
-public class RecursivePascal {
+public class RecursivePascal implements Pascal {
 
-    public void calcPascal(int n, boolean reverse){
+    // Recursively prints each row (@n) after calculating each element in the suggested direction(@b).
+    public void printPascal(int n, boolean reverse) {
 
-        // Initialize two dimensional array with n rows, n elements
-        int[][] pascalArray = new int[n][n];
-
-        printPascal(n, reverse, pascalArray);
-        print(reverse, pascalArray);
-
-    }
-
-    public void printPascal(int n, boolean reverse, int[][] pascalArray) {
-
-        // If !reverse and n > 0 we call printPascal(n - 1, reverse)
         if (!reverse && n > 0) {
-            printPascal(n - 1, reverse, pascalArray);
+            printPascal(n - 1, reverse);
         }
 
-        // Triangle print out
-        for (int i = 0; i < n; i++)
-        {
-            //System.out.print(binom(n - 1, i) + (n == i + 1 ? "\n" : " "));
-
-            int result = binomArray(n - 1, i, pascalArray);
-            pascalArray[n-1][i] = result;
-            System.out.print(result + (n == i + 1 ? "\n" : " "));
-
+        for (int i = 0; i < n; i++) {
+            System.out.print(binom(n - 1, i) + (n-1 > i ? " " : "\n"));
         }
 
         if (reverse && n > 0) {
-            printPascal(n - 1, reverse, pascalArray);
+            printPascal(n - 1, reverse);
         }
     }
 
@@ -43,25 +26,54 @@ public class RecursivePascal {
 
         if (k == 0 || k == n) {
             return 1;
-        } else {
-            return binom(n - 1, k - 1) + binom(n - 1, k);
         }
 
+        return binom(n - 1, k - 1) + binom(n - 1, k);
+    }
+
+
+    public void setPascalArray(int n, int[][] pascalArray) {
+
+        // We call setPascalArray(n - 1, pascalArray) until all values are stored in pascalArray
+        if (n > 0) setPascalArray(n - 1, pascalArray);
+
+        // Save results to pascalArray
+        for (int i = 0; i < n; i++)
+        {
+            pascalArray[n-1][i] = binomArray(n - 1, i, pascalArray);
+        }
     }
 
     public int binomArray(int n, int k, int[][] pascalArray){
 
         if (k == 0 || k == n) {
             return 1;
-        } else {
-            return pascalArray[n-1][k-1] + pascalArray[n-1][k];
         }
-
+        return pascalArray[n-1][k-1] + pascalArray[n-1][k];
     }
 
-    public void print(boolean reverse, int[][] pascalArray){
+    public void printPascalArray(int n, boolean reverse){
 
+        // Initialize two dimensional array with n rows, n elements
+        int[][] pascalArray = new int[n][n];
 
+        // Sets results in pascalArray
+        setPascalArray(n, pascalArray);
+
+        // Print out, if reverse == true an upside down triangle is printed
+        if (reverse) {
+            for (int row = n-1; row < n; row-- ) {
+                for (int column = 0; column <= row; column++) {
+                    System.out.print(row > column ? pascalArray[row][column] + " " : pascalArray[row][column] + "\n");
+                }
+            }
+        } else {
+            for (int row = 0; row < n; row++ ) {
+                for (int column = 0; column <= row; column++) {
+                    System.out.print(row > column ? pascalArray[row][column] + " " : pascalArray[row][column] + "\n");
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -73,22 +85,12 @@ public class RecursivePascal {
          * @param int - number of rows
          * @param boolean - true for upside down triangle
          */
-        o.calcPascal(30, true);
-
-
-
-    }
-}
-
+        //o.printPascal(40, false);
 
         /*
-        if (!b && n > 0) {
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j <= i; j++) {
-                    System.out.print(binom(i, j) + " ");
-                }
-
-                System.out.println();
-            }
-        }
-        */
+        * calcPascal calls setPascalArray which stores
+        * result values to pascalArray before calling printPascalArray
+        * */
+        o.printPascalArray(40, false);
+    }
+}
