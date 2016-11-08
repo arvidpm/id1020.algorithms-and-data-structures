@@ -81,16 +81,16 @@ public class RecursivePascal implements Pascal {
         // RecursivePascal object
         RecursivePascal o = new RecursivePascal();
 
-        /* Call printPascal with param (int, boolean)
-         * @param int - number of rows
-         * @param boolean - true for upside down triangle
-         */
-        //o.printPascal(40, false);
-
         /*
         * calcPascal calls setPascalArray which stores
         * result values to pascalArray before calling printPascalArray
         * */
-        o.printPascalArray(40, false);
+
+        System.out.println();
+
+        /* Call printPascal with param (int, boolean)
+         * @param int - number of rows
+         * @param boolean - true for upside down triangle
+         */
     }
 }
