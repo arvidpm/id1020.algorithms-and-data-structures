@@ -85,6 +85,7 @@ public class RecursivePascal implements Pascal {
         * calcPascal calls setPascalArray which stores
         * result values to pascalArray before calling printPascalArray
         * */
+        o.printPascalArray(33, false);
 
         System.out.println();
 
@@ -92,5 +93,6 @@ public class RecursivePascal implements Pascal {
          * @param int - number of rows
          * @param boolean - true for upside down triangle
          */
+        o.printPascal(33, false);
     }
 }
