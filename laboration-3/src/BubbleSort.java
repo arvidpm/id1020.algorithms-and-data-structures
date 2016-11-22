@@ -34,7 +34,7 @@ public class BubbleSort {
 
             int R = this.size - 2;
             boolean swapped = true;
-            int swapable = 0;
+            int swapable;
             int swaps = 0;
             ListNode pointer;
 
@@ -58,9 +58,9 @@ public class BubbleSort {
 
                 }
                 // Decrement list items to sort
-                if (R>0) R--;
+                R--;
             }
-            System.out.println("\n"+swaps+" swaps.");
+            System.out.println("\n" + swaps + " swaps.");
         }
     }
 
@@ -72,19 +72,19 @@ public class BubbleSort {
         ListNode nextpointer;
         int inversions = 0;
 
-        for (int i = 0; i <= this.size-2; i++) {
+        for (int i = 0; i <= this.size - 2; i++) {
 
             nextpointer = pointer.next;
-            for (int j = i+1; j < this.size; j++) {
-                if (pointer.data > nextpointer.data){
-                    System.out.println("Inverted "+pointer.data+" with "+nextpointer.data);
+            for (int j = i + 1; j < this.size; j++) {
+                if (pointer.data > nextpointer.data) {
+                    System.out.println("Inverted " + pointer.data + " with " + nextpointer.data);
                     inversions++;
                 }
                 nextpointer = nextpointer.next;
             }
             pointer = pointer.next;
         }
-        System.out.println(inversions+" inversions.\n");
+        System.out.println(inversions + " inversions.\n");
     }
 
     /*
@@ -110,7 +110,7 @@ public class BubbleSort {
         ListNode pointer = this.first;
 
         for (int i = 0; i < this.size; i++) {
-            System.out.print(pointer.data+" ");
+            System.out.print(pointer.data + " ");
             pointer = pointer.next;
         }
         System.out.println();
