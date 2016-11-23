@@ -1,4 +1,4 @@
-package id1020.testapplication;
+package testRecursion;
 
 /**
  * Created by arvid on 2016-11-02.

@@ -15,27 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package id1020.laboration2;
 
-import java.util.Arrays;
-
-public class ThreeSumFast {
-
-  private static boolean containsDuplicates(int[] a) {
-    for (int i = 1; i < a.length; i++)
-      if (a[i] == a[i-1]) return true;
-    return false;
-  }
-
+public class ThreeSum {
   public static int count(int[] a) {
     int N = a.length;
-    Arrays.sort(a);
-    if (containsDuplicates(a)) throw new IllegalArgumentException("array contains duplicate integers");
     int cnt = 0;
     for (int i = 0; i < N; i++) {
       for (int j = i+1; j < N; j++) {
-        int k = Arrays.binarySearch(a, -(a[i] + a[j]));
-        if (k > j) cnt++;
+        for (int k = j+1; k < N; k++) {
+          if (a[i] + a[j] + a[k] == 0) {
+            cnt++;
+          }
+        }
       }
     }
     return cnt;

@@ -1,4 +1,4 @@
-package id1020.laboration1;
+package lab1;
 
 /**
  * Created by arvid on 2016-11-07.

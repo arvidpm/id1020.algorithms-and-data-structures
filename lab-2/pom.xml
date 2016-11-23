@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>id1020.se.kth.ict</groupId>
-    <artifactId>id1020</artifactId>
-    <version>1.0</version>
+    <artifactId>lab-2</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <!-- Maven dependencies for the id1020 course -->
     <dependencies>
@@ -20,7 +20,15 @@
             <artifactId>stdlib-package</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r05</version>
+        </dependency>
     </dependencies>
+
     <repositories>
         <repository>
             <id>sics-release</id>
@@ -55,6 +63,7 @@
             </plugin>
         </plugins>
     </build>
+
 
 
 </project>

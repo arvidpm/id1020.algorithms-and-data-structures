@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package id1020.laboration2;
 
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;

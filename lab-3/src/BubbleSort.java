@@ -68,6 +68,7 @@ public class BubbleSort {
     * Count number of performed inversions without altering list
     * */
     private void countInversions() {
+
         ListNode pointer = this.first;
         ListNode nextpointer;
         int inversions = 0;
@@ -92,6 +93,7 @@ public class BubbleSort {
     * @param value the node data
     * */
     private void addNode(int value) {
+
         ListNode node = new ListNode(value);
         if (first == null) {
             first = node;

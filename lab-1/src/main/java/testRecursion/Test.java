@@ -1,4 +1,4 @@
-package id1020.testapplication;
+package testRecursion;
 
 import edu.princeton.cs.introcs.StdIn;
 import edu.princeton.cs.introcs.StdOut;
