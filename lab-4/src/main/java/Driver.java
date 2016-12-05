@@ -1,12 +1,13 @@
+import edu.princeton.cs.introcs.In;
+import java.net.URL;
 /**
  * Created by arvid on 2016-11-23.
  */
-import edu.princeton.cs.introcs.In;
-import java.net.URL;
 
 public class Driver {
 
     public static void main(String[] args) {
+
         URL url = ClassLoader.getSystemResource("kap1.txt");
 
         if (url != null) {
