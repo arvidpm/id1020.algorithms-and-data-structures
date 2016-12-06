@@ -81,7 +81,8 @@ class TinySearchEngine implements TinySearchEngineBase {
 
         /*
         * If array > 3, and the first word after our query words is 'orderby', we run the body.
-        * By setting 'orderby' element to null we break the for-loop when all words
+        * By setting 'orderby' element to null we break the for-loop when all
+        * word queries have been searched for.
         * */
         if (queries.length > 3 && queries[queries.length - 3].equalsIgnoreCase("orderby")) {
 
@@ -101,6 +102,7 @@ class TinySearchEngine implements TinySearchEngineBase {
 
         for (String q : queries) {
 
+            /* Here we break if a word previously was 'orderby', which was set to null */
             if (q == null) break;
 
             /* Searching all documents */
@@ -175,6 +177,8 @@ class TinySearchEngine implements TinySearchEngineBase {
         return -1;
     }
 
+
+    /* Constructors */
     private class Words {
         private String word;
         private ArrayList<Attributes> attr = new ArrayList<Attributes>();
