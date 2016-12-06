@@ -7,6 +7,10 @@ import se.kth.id1020.DataSource;
 public class Paths {
     public static void main(String[] args) {
         Graph g = DataSource.load();
-        // work on g
+
+        System.out.println(g.numberOfEdges());
+        System.out.print(g.numberOfVertices());
+
+        System.out.print(g.toString());
     }
 }

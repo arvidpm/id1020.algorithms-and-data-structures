@@ -9,13 +9,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-    <dependency>
-        <groupId>se.kth.id1020</groupId>
-        <artifactId>graphs</artifactId>
-        <version>1.0</version>
-    </dependency>
+        <dependency>
+            <groupId>se.kth.id1020</groupId>
+            <artifactId>graphs</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
-
     <repositories>
         <repository>
             <id>sics−release</id>
@@ -23,5 +22,32 @@
             <url>http://kompics.sics.se/maven/repository</url>
         </repository>
     </repositories>
+
+
+    <!-- Maven shade plugin (uber jar files) for the id1020 course -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>Paths</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
