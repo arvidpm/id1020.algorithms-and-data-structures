@@ -25,6 +25,11 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     }
 
+
+    public void preInserts() {
+
+    }
+
     public void insert(Word word, Attributes attr) {
 
         ArrayList<Words> docWords;
@@ -66,6 +71,10 @@ class TinySearchEngine implements TinySearchEngineBase {
                 break;
             }
         }
+    }
+
+    public void postInserts() {
+
     }
 
     public List<Document> search(String query) {
@@ -175,6 +184,11 @@ class TinySearchEngine implements TinySearchEngineBase {
             else return mid;
         }
         return -1;
+    }
+
+    public String infix(String query) {
+        return null;
+
     }
 
 
