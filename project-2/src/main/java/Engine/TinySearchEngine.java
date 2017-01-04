@@ -4,16 +4,19 @@ import se.kth.id1020.Driver;
 import se.kth.id1020.TinySearchEngineBase;
 import se.kth.id1020.util.Attributes;
 import se.kth.id1020.util.Document;
+import se.kth.id1020.util.Sentence;
 import se.kth.id1020.util.Word;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by arvid on 2017-01-02.
  */
 
 class TinySearchEngine implements TinySearchEngineBase {
+
+    private Map<Document, List<TinySearchEngine.Words>> index;
+    private Map<Document, Integer> count;
 
     private ArrayList<ArrayList<Words>> documentWords = new ArrayList<ArrayList<Words>>();
     private ArrayList<Document> docs = new ArrayList<Document>();
@@ -28,54 +31,58 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     public void preInserts() {
 
+        index = new HashMap<Document, List<Words>>();
+        count = new HashMap<Document, Integer>();
+
     }
 
-    public void insert(Word word, Attributes attr) {
+    public void insert(Sentence sentence, Attributes attr) {
 
-        ArrayList<Words> docWords;
+        /* Every word in a sentence */
+        for (Word word : sentence.getWords()) {
 
-        /* Existing document */
-        if (docs.contains(attr.document)) {
+            List<Words> docWords = index.get(attr.document);
 
-            int index = docs.indexOf(attr.document);
-            docWords = documentWords.get(index);
+            if (docWords == null) {
 
-        } else {
-            /* New document */
-            docs.add(attr.document);
-            docWords = new ArrayList<Words>();
-            documentWords.add(docWords);
-        }
-
-        /*
-        *  Add the word to the collection by using Java compareTo method
-        *  Checks for duplicates and if so adds attributes to the index.
-        *  If the word is bigger we insert at the given index, thus sorting.
-        * */
-        for (int index = 0; index <= docWords.size(); index++) {
-
-            if (docWords.size() == index) {
-                docWords.add(new Words(word, attr));
-                break;
+                docWords = new ArrayList<Words>();
+                index.put(attr.document, docWords);
             }
 
-            int cmp = docWords.get(index).word.compareTo(word.word);
+            Words words = null;
 
-            if (cmp == 0) {
-                docWords.get(index).attr.add(attr);
-                break;
+            for (Words tempWords : docWords) {
+                if (tempWords.word.equals(word.word)) {
+                    words = tempWords;
+                    break;
+                }
             }
 
-            if (cmp > 0) {
-                docWords.add(index, new Words(word, attr));
-                break;
+            if (words == null) {
+                words = new Words(word, attr);
+                docWords.add(words);
+
+            } else {
+                words.attr.add(attr);
             }
         }
     }
 
     public void postInserts() {
 
+        for (Document doc : index.keySet()) {
+            int count = 0;
+
+            for (Words words : index.get(doc)) {
+                count += words.attr.size();
+            }
+            this.count.put(doc, count);
+        }
+        for (List<Words> words : index.values()) {
+            Collections.sort(words);
+        }
     }
+
 
     public List<Document> search(String query) {
 
@@ -193,7 +200,8 @@ class TinySearchEngine implements TinySearchEngineBase {
 
 
     /* Constructors */
-    private class Words {
+    private class Words implements Comparable<Words> {
+
         private String word;
         private ArrayList<Attributes> attr = new ArrayList<Attributes>();
 
@@ -201,8 +209,13 @@ class TinySearchEngine implements TinySearchEngineBase {
             this.word = word.word;
             this.attr.add(attr);
         }
+
+        public int compareTo(Words compareWord) {
+            return word.compareTo(compareWord.word);
+        }
     }
 
+    /*
     private class Docs {
         private Document doc;
         private ArrayList<Words> word = new ArrayList<Words>();
@@ -212,4 +225,5 @@ class TinySearchEngine implements TinySearchEngineBase {
             this.word.add(word);
         }
     }
+    */
 }
