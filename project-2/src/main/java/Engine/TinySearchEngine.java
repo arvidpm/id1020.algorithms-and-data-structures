@@ -21,6 +21,11 @@ class TinySearchEngine implements TinySearchEngineBase {
     private ArrayList<ArrayList<Words>> documentWords = new ArrayList<ArrayList<Words>>();
     private ArrayList<Document> docs = new ArrayList<Document>();
 
+    private byte sortProp, sortOrder;
+    private boolean sort;
+    private String sorting;
+
+
     public static void main(String[] args) throws Exception {
 
         TinySearchEngineBase searchEngine = new TinySearchEngine();
@@ -86,14 +91,13 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     public List<Document> search(String query) {
 
+        if (query.length() == 0) { return null; }
+
         /* For multiple query words */
         String[] queries = query.split(" ");
 
-        boolean sort = false;
-        int prop = 0;
-        int order = 0;
-
-        List<Docs> res = new ArrayList<Docs>();
+        sort = false;
+        sorting = "";
 
         /*
         * If array > 3, and the first word after our query words is 'orderby', we run the body.
@@ -104,50 +108,20 @@ class TinySearchEngine implements TinySearchEngineBase {
 
             sort = true;
 
-            if (queries[queries.length - 2].equalsIgnoreCase("count")) prop = 1;
-            else if (queries[queries.length - 2].equalsIgnoreCase("popularity")) prop = 2;
-            else if (queries[queries.length - 2].equalsIgnoreCase("occurrence")) prop = 3;
+            if (queries[queries.length - 2].equalsIgnoreCase("relevance")) sortProp = 0;
+            else if (queries[queries.length - 2].equalsIgnoreCase("popularity")) sortProp = 1;
             else System.out.println("Unknown sorting criteria.");
 
-            if (queries[queries.length - 1].equalsIgnoreCase("asc")) order = 1;
-            else if (queries[queries.length - 1].equalsIgnoreCase("desc")) order = 2;
+            if (queries[queries.length - 1].equalsIgnoreCase("asc")) sortOrder = 0;
+            else if (queries[queries.length - 1].equalsIgnoreCase("desc")) sortOrder = 1;
             else System.out.println("Unknown ordering criteria.");
 
-            queries[queries.length - 3] = null;
+            sorting = " ORDERBY "
+                    + (sortProp == 0 ? "RELEVANCE" : "POPULARITY")
+                    + " " + (sortOrder == 0 ? "ASC" : "DESC");
+
         }
 
-        for (String q : queries) {
-
-            /* Here we break if a word previously was 'orderby', which was set to null */
-            if (q == null) break;
-
-            /* Searching all documents */
-            for (int i = 0; i < documentWords.size(); i++) {
-
-                /* Searching for word q in document i */
-                int index = binarySearch(q, documentWords.get(i));
-
-                /* If we got a hit */
-                if (index != -1) {
-
-                    /* If the current document already is in the resultset, we find the reference */
-                    Docs docContainer = null;
-                    for (Docs resItem : res) {
-
-                        if (resItem.doc.equals(docs.get(i))) {
-                            docContainer = resItem;
-                            break;
-                        }
-                    }
-
-                    /* if: we find a result in a document (first time)
-                     * else: document already part of results
-                     * */
-                    if (docContainer == null) res.add(new Docs(docs.get(i), documentWords.get(i).get(index)));
-                    else docContainer.word.add(documentWords.get(i).get(index));
-                }
-            }
-        }
 
         /* Unimplemented sorting of results by properties in selected order */
         if (sort) {
@@ -158,12 +132,6 @@ class TinySearchEngine implements TinySearchEngineBase {
             if (order == 2) System.out.println("Should be ordered descending.");
         }
 
-        /* Results to be returned */
-        List<Document> results = new ArrayList<Document>();
-
-        for (Docs documentContainer : res) {
-            if (!results.contains(documentContainer.doc)) results.add(documentContainer.doc);
-        }
         return results;
     }
 
@@ -214,16 +182,4 @@ class TinySearchEngine implements TinySearchEngineBase {
             return word.compareTo(compareWord.word);
         }
     }
-
-    /*
-    private class Docs {
-        private Document doc;
-        private ArrayList<Words> word = new ArrayList<Words>();
-
-        private Docs(Document doc, Words word) {
-            this.doc = doc;
-            this.word.add(word);
-        }
-    }
-    */
 }
