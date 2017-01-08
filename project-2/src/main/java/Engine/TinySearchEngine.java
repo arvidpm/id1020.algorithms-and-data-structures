@@ -85,7 +85,9 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     public List<Document> search(String query) {
 
-        if (query.length() == 0) { return null; }
+        if (query.length() == 0) {
+            return null;
+        }
 
         /* For multiple query words */
         String[] queries = query.split(" ");
@@ -139,19 +141,15 @@ class TinySearchEngine implements TinySearchEngineBase {
     }
 
     /* Sort results on selected property */
-    private List<Document> sortResults(Map<Document, Double> documents)
-    {
+    private List<Document> sortResults(Map<Document, Double> documents) {
         List<Document> results = new ArrayList<Document>();
 
-        while (!documents.isEmpty())
-        {
+        while (!documents.isEmpty()) {
             double smallestValue = 0;
             Document smallestDocument = null;
 
-            for (Document document : documents.keySet())
-            {
-                if (smallestDocument == null || (sortProp == 0 && documents.get(document) < smallestValue) || (sortProp == 1 && document.popularity < smallestValue))
-                {
+            for (Document document : documents.keySet()) {
+                if (smallestDocument == null || (sortProp == 0 && documents.get(document) < smallestValue) || (sortProp == 1 && document.popularity < smallestValue)) {
                     smallestValue = sortProp == 0 ? documents.get(document) : document.popularity;
                     smallestDocument = document;
                 }
@@ -165,7 +163,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         return results;
     }
 
-    private String preToInf (String query) {
+    private String preToInf(String query) {
 
         query = query.trim();
         query = new StringBuilder(query).reverse().toString();
@@ -178,13 +176,15 @@ class TinySearchEngine implements TinySearchEngineBase {
         return query = preToInf(stack);
     }
 
-    private String preToInf (Stack<Character> stack) {
+    private String preToInf(Stack<Character> stack) {
 
         String res = "";
 
-        if (stack.size() == 0) { return ""; }
+        if (stack.size() == 0) {
+            return "";
+        }
 
-        char c  = stack.pop();
+        char c = stack.pop();
 
         if (c == '+' || c == '-' || c == '|') {
 
@@ -193,8 +193,7 @@ class TinySearchEngine implements TinySearchEngineBase {
             res += c;
             res += preToInf(stack);
             res += ")";
-        }
-        else if (c == ' ') {
+        } else if (c == ' ') {
             res += preToInf(stack);
         } else {
 
@@ -207,7 +206,7 @@ class TinySearchEngine implements TinySearchEngineBase {
     }
 
 
-    private Map<Document, Double> infixSearch (String query) {
+    private Map<Document, Double> infixSearch(String query) {
 
         Map<Document, Double> res = new HashMap<Document, Double>();
         String str1, str2;
@@ -218,22 +217,22 @@ class TinySearchEngine implements TinySearchEngineBase {
 
             char current = query.charAt(i);
 
-            if (depth == 0 && current == '+' || current == '-' || current == '|') {
+            if (depth == 0 && (current == '+' || current == '-' || current == '|')) {
 
                 str1 = removeParenthesis(query.substring(0, i));
                 str2 = removeParenthesis(query.substring(i + 1));
                 c = query.charAt(i);
 
                 Map<Document, Double> doc1 = isSingleWord(str1) ? searchOneWord(str1) : infixSearch(str1);
-                Map<Document, Double> doc2 = isSingleWord(str1) ? searchOneWord(str2) : infixSearch(str2);
+                Map<Document, Double> doc2 = isSingleWord(str2) ? searchOneWord(str2) : infixSearch(str2);
 
-                if      (c == '+') res = union(res, intersection(doc1, doc2));
+                if (c == '+') res = union(res, intersection(doc1, doc2));
                 else if (c == '-') res = union(res, difference(doc1, doc2));
                 else if (c == '|') res = union(res, union(doc1, doc2));
             }
 
-            if (current == '(' ) depth++;
-            else if (current == ')' ) depth--;
+            if (current == '(') depth++;
+            else if (current == ')') depth--;
         }
 
         String[] splitQuery = query.split(" ");
@@ -246,7 +245,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         return res;
     }
 
-    private Map<Document, Double> searchOneWord (String word) {
+    private Map<Document, Double> searchOneWord(String word) {
 
         Map<Document, Double> res = new HashMap<Document, Double>();
 
@@ -271,47 +270,49 @@ class TinySearchEngine implements TinySearchEngineBase {
                 res.put(document, res.get(document) * inverseDocFreq);
             }
         }
+
         return res;
     }
 
-    private Map<Document, Double> intersection(Map<Document, Double> list1, Map<Document, Double> list2)
-    {
+    private Map<Document, Double> intersection(Map<Document, Double> list1, Map<Document, Double> list2) {
+
         Map<Document, Double> list = new HashMap<Document, Double>();
 
-        for (Document document : list1.keySet())
-        {
-            if (list2.containsKey(document)) { list.put(document, list1.get(document) + list2.get(document)); }
+        for (Document document : list1.keySet()) {
+
+            if (list2.containsKey(document)) list.put(document, list1.get(document) + list2.get(document));
         }
 
         return list;
     }
 
-    private Map<Document, Double> difference(Map<Document, Double> list1, Map<Document, Double> list2)
-    {
+    private Map<Document, Double> difference(Map<Document, Double> list1, Map<Document, Double> list2) {
+
         Map<Document, Double> list = new HashMap<Document, Double>();
 
-        for (Document document : list1.keySet())
-        {
-            if (!list2.containsKey(document)) { list.put(document, list1.get(document)); }
+        for (Document document : list1.keySet()) {
+
+            if (!list2.containsKey(document)) list.put(document, list1.get(document));
         }
 
         return list;
     }
 
-    private Map<Document, Double> union(Map<Document, Double> list1, Map<Document, Double> list2)
-    {
+    private Map<Document, Double> union(Map<Document, Double> list1, Map<Document, Double> list2) {
+
         Map<Document, Double> list = new HashMap<Document, Double>(list1);
 
-        for (Document document : list2.keySet())
-        {
-            if (list.containsKey(document)) { list.put(document, list.get(document) + list2.get(document)); }
-            else { list.put(document, list2.get(document)); }
+        for (Document document : list2.keySet()) {
+
+            if (list.containsKey(document)) list.put(document, list.get(document) + list2.get(document));
+            else list.put(document, list2.get(document));
+
         }
 
         return list;
     }
 
-    private boolean isSingleWord (String str) {
+    private boolean isSingleWord(String str) {
         return str.length() - str.replaceAll("[\\+\\-\\|]", "").length() == 0;
     }
 
