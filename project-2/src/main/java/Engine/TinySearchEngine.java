@@ -18,9 +18,6 @@ class TinySearchEngine implements TinySearchEngineBase {
     private Map<Document, List<TinySearchEngine.Words>> index;
     private Map<Document, Integer> count;
 
-    private ArrayList<ArrayList<Words>> documentWords = new ArrayList<ArrayList<Words>>();
-    private ArrayList<Document> docs = new ArrayList<Document>();
-
     private byte sortProp, sortOrder;
     private boolean sort;
     private String sorting;
@@ -83,9 +80,6 @@ class TinySearchEngine implements TinySearchEngineBase {
             }
             this.count.put(doc, count);
         }
-        for (List<Words> words : index.values()) {
-            Collections.sort(words);
-        }
     }
 
 
@@ -107,6 +101,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         if (queries.length > 3 && queries[queries.length - 3].equalsIgnoreCase("orderby")) {
 
             sort = true;
+            String nQuery = "";
 
             if (queries[queries.length - 2].equalsIgnoreCase("relevance")) sortProp = 0;
             else if (queries[queries.length - 2].equalsIgnoreCase("popularity")) sortProp = 1;
@@ -120,52 +115,213 @@ class TinySearchEngine implements TinySearchEngineBase {
                     + (sortProp == 0 ? "RELEVANCE" : "POPULARITY")
                     + " " + (sortOrder == 0 ? "ASC" : "DESC");
 
+            for (int i = 0; i < queries.length - 3; i++) {
+                nQuery += " " + queries[i];
+            }
+
+            /* Discard first space */
+            query = nQuery.substring(1);
         }
 
+        /* Converts prefix search query to infix, removes parenthesis and calls infixSearch.
+        * Stores results in resUnsorted
+        */
+        Map<Document, Double> resUnsorted = infixSearch(removeParenthesis(preToInf(query)));
+        List<Document> results;
 
-        /* Unimplemented sorting of results by properties in selected order */
+        /* Sorts result ascending and reverts to descending if sortOrder == 1 */
         if (sort) {
-            if (prop == 1) System.out.println("Should be sorted by count.");
-            if (prop == 2) System.out.println("Should be sorted by popularity.");
-            if (prop == 3) System.out.println("Should be sorted by occurrence.");
-            if (order == 1) System.out.println("Should be ordered ascending.");
-            if (order == 2) System.out.println("Should be ordered descending.");
+            results = sortResults(resUnsorted);
+            if (sortOrder == 1) Collections.reverse(results);
+        } else results = new ArrayList<Document>(resUnsorted.keySet());
+
+        return results;
+    }
+
+    /* Sort results on selected property */
+    private List<Document> sortResults(Map<Document, Double> documents)
+    {
+        List<Document> results = new ArrayList<Document>();
+
+        while (!documents.isEmpty())
+        {
+            double smallestValue = 0;
+            Document smallestDocument = null;
+
+            for (Document document : documents.keySet())
+            {
+                if (smallestDocument == null || (sortProp == 0 && documents.get(document) < smallestValue) || (sortProp == 1 && document.popularity < smallestValue))
+                {
+                    smallestValue = sortProp == 0 ? documents.get(document) : document.popularity;
+                    smallestDocument = document;
+                }
+            }
+
+            results.add(smallestDocument);
+            System.out.println("Added " + smallestDocument + " with " + smallestValue);
+            documents.remove(smallestDocument);
         }
 
         return results;
     }
 
-    /* A modified binarySearch from lab 1.
-    * Comparision is done with compareTo, in the interval 0 - (ArrayList-1)
-    * If (cmp > 0) we set hi to mid-1. If (cmp < 0) we set low to mid+1.
-    * If word is found we return mid (index), else -1.
-    * */
-    private int binarySearch(String word, ArrayList<Words> Words) {
+    private String preToInf (String query) {
 
-        if (Words.size() == 0) return -1;
+        query = query.trim();
+        query = new StringBuilder(query).reverse().toString();
 
-        int lo = 0;
-        int hi = Words.size() - 1;
+        Stack<Character> stack = new Stack<Character>();
 
-        while (lo <= hi) {
-
-            int mid = lo + (hi - lo) / 2;
-            String midWord = Words.get(mid).word;
-
-            int cmp = midWord.compareTo(word);
-
-            if (cmp > 0) hi = mid - 1;
-            else if (cmp < 0) lo = mid + 1;
-            else return mid;
+        for (char c : query.toCharArray()) {
+            stack.push(c);
         }
-        return -1;
+        return query = preToInf(stack);
+    }
+
+    private String preToInf (Stack<Character> stack) {
+
+        String res = "";
+
+        if (stack.size() == 0) { return ""; }
+
+        char c  = stack.pop();
+
+        if (c == '+' || c == '-' || c == '|') {
+
+            res += "(";
+            res += preToInf(stack);
+            res += c;
+            res += preToInf(stack);
+            res += ")";
+        }
+        else if (c == ' ') {
+            res += preToInf(stack);
+        } else {
+
+            res += c;
+            if (stack.size() != 0 && stack.peek() != ' ') {
+                res += preToInf(stack);
+            }
+        }
+        return res;
+    }
+
+
+    private Map<Document, Double> infixSearch (String query) {
+
+        Map<Document, Double> res = new HashMap<Document, Double>();
+        String str1, str2;
+        char c;
+        int depth = 0;
+
+        for (int i = 0; i < query.length(); i++) {
+
+            char current = query.charAt(i);
+
+            if (depth == 0 && current == '+' || current == '-' || current == '|') {
+
+                str1 = removeParenthesis(query.substring(0, i));
+                str2 = removeParenthesis(query.substring(i + 1));
+                c = query.charAt(i);
+
+                Map<Document, Double> doc1 = isSingleWord(str1) ? searchOneWord(str1) : infixSearch(str1);
+                Map<Document, Double> doc2 = isSingleWord(str1) ? searchOneWord(str2) : infixSearch(str2);
+
+                if      (c == '+') res = union(res, intersection(doc1, doc2));
+                else if (c == '-') res = union(res, difference(doc1, doc2));
+                else if (c == '|') res = union(res, union(doc1, doc2));
+            }
+
+            if (current == '(' ) depth++;
+            else if (current == ')' ) depth--;
+        }
+
+        String[] splitQuery = query.split(" ");
+
+        if (splitQuery.length == 1) {
+            Map<Document, Double> oneWordQuery = searchOneWord(query);
+            res = union(res, oneWordQuery);
+        }
+
+        return res;
+    }
+
+    private Map<Document, Double> searchOneWord (String word) {
+
+        Map<Document, Double> res = new HashMap<Document, Double>();
+
+        for (Document document : index.keySet()) {
+            for (Words words : index.get(document)) {
+                if (words.word.equals(word)) {
+
+                    /* Calculate term frequency */
+                    double termFreq = ((double) words.attr.size() / (double) count.get(document));
+                    res.put(document, termFreq);
+                    break;
+                }
+            }
+        }
+
+        if (res.size() != 0) {
+
+            /* Calculate inverse document frequency */
+            double inverseDocFreq = Math.log10(index.keySet().size() / res.size());
+
+            for (Document document : res.keySet()) {
+                res.put(document, res.get(document) * inverseDocFreq);
+            }
+        }
+        return res;
+    }
+
+    private Map<Document, Double> intersection(Map<Document, Double> list1, Map<Document, Double> list2)
+    {
+        Map<Document, Double> list = new HashMap<Document, Double>();
+
+        for (Document document : list1.keySet())
+        {
+            if (list2.containsKey(document)) { list.put(document, list1.get(document) + list2.get(document)); }
+        }
+
+        return list;
+    }
+
+    private Map<Document, Double> difference(Map<Document, Double> list1, Map<Document, Double> list2)
+    {
+        Map<Document, Double> list = new HashMap<Document, Double>();
+
+        for (Document document : list1.keySet())
+        {
+            if (!list2.containsKey(document)) { list.put(document, list1.get(document)); }
+        }
+
+        return list;
+    }
+
+    private Map<Document, Double> union(Map<Document, Double> list1, Map<Document, Double> list2)
+    {
+        Map<Document, Double> list = new HashMap<Document, Double>(list1);
+
+        for (Document document : list2.keySet())
+        {
+            if (list.containsKey(document)) { list.put(document, list.get(document) + list2.get(document)); }
+            else { list.put(document, list2.get(document)); }
+        }
+
+        return list;
+    }
+
+    private boolean isSingleWord (String str) {
+        return str.length() - str.replaceAll("[\\+\\-\\|]", "").length() == 0;
+    }
+
+    private String removeParenthesis(String string) {
+        return string.replaceAll("\\)$|^\\(", "");
     }
 
     public String infix(String query) {
-        return null;
-
+        return preToInf(query) + sorting;
     }
-
 
     /* Constructors */
     private class Words implements Comparable<Words> {
