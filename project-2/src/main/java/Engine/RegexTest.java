@@ -1,9 +1,11 @@
-/**
- * Created by arvid on 2017-01-04.
- */
-public class Test {
+package Engine;
 
-    public static void main(String args[]) {
+/**
+ * Created by arvid on 2017-01-03.
+ */
+public class RegexTest {
+
+    public static void regexTest() {
 
         String query = "+ + nightmare whale | nightmare dog orderby relevance asc ";
 
